@@ -1,0 +1,124 @@
+-- Table: public.usuario
+
+-- DROP TABLE public.usuario;
+
+CREATE TABLE public.usuario
+(
+    documento bigint NOT NULL,
+    nombres character varying(70) COLLATE pg_catalog."default" NOT NULL,
+    apellidos character varying(70) COLLATE pg_catalog."default" NOT NULL,
+    direccion character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    email character varying(100) COLLATE pg_catalog."default",
+    genero "char" NOT NULL,
+    celular character varying(13) COLLATE pg_catalog."default",
+    CONSTRAINT pk_usuario PRIMARY KEY (documento)
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.usuario
+    OWNER to postgres;
+
+-- Table: public.ninia
+
+-- DROP TABLE public.ninia;
+
+CREATE TABLE public.ninia
+(
+    id integer NOT NULL,
+    descripcion_entrada character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    usuario_documento bigint NOT NULL,
+    CONSTRAINT pk_ninia PRIMARY KEY (id),
+    CONSTRAINT unique_usuario UNIQUE (usuario_documento)
+,
+    CONSTRAINT fk_ninia_usuario FOREIGN KEY (usuario_documento)
+        REFERENCES public.usuario (documento) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.ninia
+    OWNER to postgres;
+
+-- Table: public.registro_salud
+
+-- DROP TABLE public.registro_salud;
+
+CREATE TABLE public.registro_salud
+(
+    ninia_documento integer NOT NULL,
+    fecha_registro timestamp(6) with time zone NOT NULL,
+    peso integer NOT NULL,
+    altura integer NOT NULL,
+    tension integer NOT NULL,
+    descripcion_condicion character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT pk_registro_salud PRIMARY KEY (ninia_documento),
+    CONSTRAINT fk_registro_ninia FOREIGN KEY (ninia_documento)
+        REFERENCES public.ninia (usuario_documento) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.registro_salud
+    OWNER to postgres;
+
+-- Table: public.tipo_usuario
+
+-- DROP TABLE public.tipo_usuario;
+
+CREATE TABLE public.tipo_usuario
+(
+    codigo integer NOT NULL,
+    usuario_documento bigint NOT NULL,
+    tipo character varying(20) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT tipo_usuario_pkey PRIMARY KEY (codigo),
+    CONSTRAINT uniq_documento UNIQUE (usuario_documento)
+,
+    CONSTRAINT fk_tipousuario_usuario FOREIGN KEY (usuario_documento)
+        REFERENCES public.usuario (documento) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.tipo_usuario
+    OWNER to postgres;
+
+-- Table: public.tipo_usuario_ninia
+
+-- DROP TABLE public.tipo_usuario_ninia;
+
+CREATE TABLE public.tipo_usuario_ninia
+(
+    tipo_usuario_documento bigint NOT NULL,
+    ninia_documento bigint NOT NULL,
+    CONSTRAINT "tipo_usuario_niña_pkey" PRIMARY KEY (tipo_usuario_documento, ninia_documento),
+    CONSTRAINT "fk_tipoUsuario_ninia1" FOREIGN KEY (ninia_documento)
+        REFERENCES public.ninia (usuario_documento) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT "fk_tipoUsuario_ninia2" FOREIGN KEY (tipo_usuario_documento)
+        REFERENCES public.tipo_usuario (usuario_documento) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.tipo_usuario_ninia
+    OWNER to postgres;
